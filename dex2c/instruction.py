@@ -156,7 +156,20 @@ class Constant(Value):
         if self.var_type and self.var_type[0] == 'L':
             return util.hex_escape_string(self.constant)
         else:
-            return self.constant
+            _constant = self.constant
+            if _constant > 65535:
+                try:
+                    target = hex(_constant)[2:]
+                    if len(target) >= 8 and len(target) < 16:
+                        _constant = target[:8]
+                    elif len(target) >= 16:
+                        _constant = target[:16]
+                    _constant = int(_constant,16)
+                except Exception:
+                    logger.error("Not a number %s",_constant)
+                    logger.error("Not a number %s",self.constant)
+                    _constant = self.constant
+            return _constant
 
     def visit(self, visitor):
         return visitor.visit_constant(self)
